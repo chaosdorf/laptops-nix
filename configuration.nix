@@ -42,6 +42,9 @@
     enable = true;
     greeters.gtk.enable = false;
     greeters.slick.enable = true;
+    extraConfig = ''
+      guest-account-script=${pkgs.lightdm-guest-account}/bin/guest-account
+    '';
   };
 
   # Enable the KDE Plasma Desktop Environment.
@@ -84,6 +87,8 @@
   #  wget
     git
     kdePackages.discover
+    lightdm-guest-account
+    gettext # needed for guest-account
   ];
 
   # List services that you want to enable:
@@ -92,6 +97,43 @@
     ln -sfn /run/current-system/sw/bin/bash /bin/bash
     mkdir -p /etc/skel
   '';
+
+  # Add or modify packages
+  nixpkgs.overlays = [
+    (final: prev: rec {
+      # Add guest-mode to lightdm
+      lightdm-guest-account = prev.resholve.mkDerivation rec {
+        pname = "lightdm-guest-account";
+        version = src.rev;
+        src = prev.fetchgit {
+          url = "https://aur.archlinux.org/lightdm-guest-account.git";
+          hash = "sha256-Ks2oGYfqbxgqKdbiIgiIkjI0yL8CZlp8yd7IHxilxnk=";
+        };
+        patches = [
+          ./site-gs.patch
+          ./locale.patch
+        ];
+        installPhase = ''
+          mkdir -p $out/bin
+          install --mode +x guest-account.sh $out/bin/guest-account
+        '';
+        solutions = {
+          default = {
+            scripts = [ "bin/guest-account" ];
+            interpreter = "/bin/sh";
+            inputs = [ prev.gnugrep prev.gawk prev.getent prev.findutils prev.gettext prev.systemd prev.procps prev.psmisc ];
+            fake = {
+              external = [ "useradd" "userdel" "rm" "ls" "cp" "chown" "sleep" "mktemp" "tr" "mkdir" "rmdir" "cut" "cat" "passwd" "mount" "su" "umount" ];
+            };
+          };
+        };
+
+      };
+    })
+  ];
+
+  # This is needed for guest-session.
+  users.groups.autologin = {};
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
