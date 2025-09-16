@@ -102,7 +102,7 @@
   nixpkgs.overlays = [
     (final: prev: rec {
       # Add guest-mode to lightdm
-      lightdm-guest-account = prev.resholve.mkDerivation rec {
+      lightdm-guest-account = prev.stdenv.mkDerivation rec {
         pname = "lightdm-guest-account";
         version = src.rev;
         src = prev.fetchgit {
@@ -111,23 +111,13 @@
         };
         patches = [
           ./site-gs.patch
+          ./path.patch
           ./locale.patch
         ];
         installPhase = ''
           mkdir -p $out/bin
           install --mode +x guest-account.sh $out/bin/guest-account
         '';
-        solutions = {
-          default = {
-            scripts = [ "bin/guest-account" ];
-            interpreter = "/bin/sh";
-            inputs = [ prev.gnugrep prev.gawk prev.getent prev.findutils prev.gettext prev.systemd prev.procps prev.psmisc ];
-            fake = {
-              external = [ "useradd" "userdel" "rm" "ls" "cp" "chown" "sleep" "mktemp" "tr" "mkdir" "rmdir" "cut" "cat" "passwd" "mount" "su" "umount" ];
-            };
-          };
-        };
-
       };
     })
   ];
