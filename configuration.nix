@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [
@@ -124,6 +124,21 @@
 
   # This is needed for guest-session.
   users.groups.autologin = {};
+  # allow the guest account to login
+  # This is taken from nixpkgs/nixos/modules/services/x11/display-managers/lightdm.nix,
+  # but without the uid >= 1000 check.
+  security.pam.services.lightdm-autologin.text = lib.mkForce ''
+        auth      requisite     pam_nologin.so
+  
+        auth      required      pam_permit.so
+  
+        account   sufficient    pam_unix.so
+  
+        password  requisite     pam_unix.so nullok yescrypt
+  
+        session   optional      pam_keyinit.so revoke
+        session   include       login
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
