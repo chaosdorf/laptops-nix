@@ -114,9 +114,7 @@
           hash = "sha256-Ks2oGYfqbxgqKdbiIgiIkjI0yL8CZlp8yd7IHxilxnk=";
         };
         patches = [
-          ./site-gs.patch
-          ./path.patch
-          ./locale.patch
+          ./guest-account-path.patch
         ];
         installPhase = ''
           mkdir -p $out/bin
