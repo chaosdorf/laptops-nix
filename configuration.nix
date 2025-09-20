@@ -45,6 +45,10 @@
     extraConfig = ''
       guest-account-script=${pkgs.lightdm-guest-account}/bin/guest-account
     '';
+    extraSeatDefaults = ''
+      greeter-hide-users=true
+      greeter-show-manual-login=true
+    '';
   };
 
   # Enable the KDE Plasma Desktop Environment.
