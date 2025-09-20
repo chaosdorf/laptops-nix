@@ -51,8 +51,11 @@
     '';
   };
 
-  # Enable the KDE Plasma Desktop Environment.
+  # Enable desktop environments
   services.desktopManager.plasma6.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
+  # resolve a conflict between plasma and gnome
+  programs.ssh.askPassword = pkgs.lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
 
   # Configure keymap in X11
   services.xserver.xkb = {
