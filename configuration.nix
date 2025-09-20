@@ -139,6 +139,12 @@
         session   optional      pam_keyinit.so revoke
         session   include       login
   '';
+  
+  # add a local admin user
+  users.users.admin = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
