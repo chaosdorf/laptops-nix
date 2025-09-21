@@ -119,6 +119,16 @@
     lightdm-guest-account
     gettext # needed for guest-account
   ];
+  
+  # pin applications to GNOME shell
+  programs.dconf.profiles.user.databases = [ {
+    settings = {
+      "org/gnome/shell" = {
+        favorite-apps = [ "org.gnome.Settings.desktop" "org.gnome.Nautilus.desktop" "firefox.desktop" ];
+      };
+    };
+  } ];
+  # for Plasma, this is handled by plasma-shortcuts.js
 
   # List services that you want to enable:
   services.homed.enable = true;
@@ -145,6 +155,14 @@
           mkdir -p $out/bin
           install --mode +x guest-account.sh $out/bin/guest-account
         '';
+      };
+      # Setup defaults for Plasma.
+      kdePackages = prev.kdePackages // {
+        plasma-desktop = prev.kdePackages.plasma-desktop.overrideAttrs (finalAttrs: prevAttrs: {
+          postInstall = (prevAttrs.postInstall or "") + ''
+            install -Dm444 ${./plasma-shortcuts.js} $out/share/plasma/shells/org.kde.plasma.desktop/contents/layout.js
+          '';
+        });
       };
     })
   ];
