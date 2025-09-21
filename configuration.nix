@@ -81,8 +81,14 @@
     pulse.enable = true;
   };
 
-  # Install firefox.
+  # Install shells
+  programs.zsh.enable = true;
+  programs.fish.enable = true;
+  
+  # Install browsers
   programs.firefox.enable = true;
+  programs.chromium.enable = true;
+  programs.thunderbird.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -90,10 +96,26 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    # editors
+    vim
+    thonny
+    vscode
+    zed-editor
+    jetbrains.pycharm-community-bin
+    
+    # command line tools
+    wget
     git
+    python3Full
+    
+    # desktop applications
+    vlc
+    libreoffice-qt6
+    
+    # system stuff
     kdePackages.discover
+    kdePackages.isoimagewriter
+    kdePackages.plasma-welcome
     lightdm-guest-account
     gettext # needed for guest-account
   ];
