@@ -158,11 +158,21 @@
       };
       # Setup defaults for Plasma.
       kdePackages = prev.kdePackages // {
-        plasma-desktop = prev.kdePackages.plasma-desktop.overrideAttrs (finalAttrs: prevAttrs: {
-          postInstall = (prevAttrs.postInstall or "") + ''
-            install -Dm444 ${./plasma-shortcuts.js} $out/share/plasma/shells/org.kde.plasma.desktop/contents/layout.js
-          '';
-        });
+        plasma-desktop = prev.symlinkJoin {
+          name = "plasma-desktop";
+          paths = [
+            prev.kdePackages.plasma-desktop
+            plasma-override
+          ];
+        };
+      };
+      plasma-override = prev.stdenv.mkDerivation {
+        name = "plasma-override";
+        version = "0.1.0";
+        dontUnpack = true;
+        installPhase = ''
+          install -Dm444 ${./plasma-shortcuts.js} $out/share/plasma/shells/org.kde.plasma.desktop/contents/layout.js
+        '';
       };
     })
   ];
