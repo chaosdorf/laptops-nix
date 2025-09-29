@@ -128,7 +128,7 @@
       };
     };
   } ];
-  # for Plasma, this is handled by plasma-shortcuts.js
+  # TODO: for Plasma
 
   # List services that you want to enable:
   services.homed.enable = true;
@@ -154,24 +154,6 @@
         installPhase = ''
           mkdir -p $out/bin
           install --mode +x guest-account.sh $out/bin/guest-account
-        '';
-      };
-      # Setup defaults for Plasma.
-      kdePackages = prev.kdePackages // {
-        plasma-desktop = prev.symlinkJoin {
-          name = "plasma-desktop";
-          paths = [
-            prev.kdePackages.plasma-desktop
-            plasma-override
-          ];
-        };
-      };
-      plasma-override = prev.stdenv.mkDerivation {
-        name = "plasma-override";
-        version = "0.1.0";
-        dontUnpack = true;
-        installPhase = ''
-          install -Dm444 ${./plasma-shortcuts.js} $out/share/plasma/shells/org.kde.plasma.desktop/contents/layout.js
         '';
       };
     })
