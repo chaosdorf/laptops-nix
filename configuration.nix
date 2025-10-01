@@ -163,6 +163,8 @@
         session   optional      pam_keyinit.so revoke
         session   include       login
   '';
+  # setup the guest account (as root)
+  environment.etc."guest-session/prefs.sh".source = ./prefs.sh;
   
   # add a local admin user
   users.users.admin = {
