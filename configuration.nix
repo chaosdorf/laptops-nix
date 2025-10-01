@@ -190,6 +190,22 @@
       commands = [ { command = "/run/current-system/sw/bin/update"; options = [ "SETENV" "NOPASSWD" ]; } ];
     }
   ];
+  
+  # Copy the NixOS configuration file and link it from the resulting system
+  # (/run/current-system/configuration.nix). This is useful in case you
+  # accidentally delete configuration.nix.
+  system.copySystemConfiguration = true;
+
+  # Automatic updates
+  system.autoUpgrade.enable = true;
+
+  # Automatic garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+  nix.settings.auto-optimise-store = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
