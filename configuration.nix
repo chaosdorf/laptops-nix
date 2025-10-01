@@ -182,6 +182,14 @@
     isNormalUser = true;
     extraGroups = [ "wheel" ];
   };
+  
+  # allow all guest and normal users to run the update script
+  security.sudo.extraRules = [
+    {
+      groups = [ "autologin" "users" ];
+      commands = [ { command = "/run/current-system/sw/bin/update"; options = [ "SETENV" "NOPASSWD" ]; } ];
+    }
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

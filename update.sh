@@ -4,7 +4,7 @@
 # It elevates to root by itself (without a password).
 
 if [ "$EUID" -ne 0 ]
-  then exec sudo update
+  then exec sudo /run/current-system/sw/bin/update
 fi
 
 cd /etc/nixos
