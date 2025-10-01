@@ -115,6 +115,7 @@
     kdePackages.plasma-welcome
     lightdm-guest-account
     gettext # needed for guest-account
+    update # the update script (see below)
   ];
 
   # List services that you want to enable:
@@ -141,6 +142,16 @@
         installPhase = ''
           mkdir -p $out/bin
           install --mode +x guest-account.sh $out/bin/guest-account
+        '';
+      };
+      # Add a simple command to update the system (configuration).
+      update = prev.stdenv.mkDerivation {
+        pname = "update";
+        version = "0.1.0";
+        dontUnpack = true;
+        installPhase = ''
+          mkdir -p $out/bin
+          install --mode +x ${./update.sh} $out/bin/update
         '';
       };
     })
