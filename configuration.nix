@@ -14,6 +14,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.plymouth.enable = true;
   boot.initrd.systemd.enable = true;
+  boot.initrd.verbose = false;
+  boot.kernelParams = [ "quiet" "splash" ];
 
   networking.hostName = "nixos"; # Define your hostname.
 
