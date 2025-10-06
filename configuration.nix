@@ -12,10 +12,14 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.plymouth.enable = true;
   boot.initrd.systemd.enable = true;
   boot.initrd.verbose = false;
   boot.kernelParams = [ "quiet" "splash" ];
+  boot.plymouth = {
+    enable = true;
+    themePackages = [ pkgs.plymouth-hackers-theme ];
+    theme = "crashoverride";
+  };
 
   networking.hostName = "nixos"; # Define your hostname.
 
@@ -120,6 +124,7 @@
     lightdm-guest-account
     gettext # needed for guest-account
     update # the update script (see below)
+    plymouth-hackers-theme
   ];
 
   # List services that you want to enable:
@@ -156,6 +161,31 @@
         installPhase = ''
           mkdir -p $out/bin
           install --mode +x ${./update.sh} $out/bin/update
+        '';
+      };
+      plymouth-hackers-theme = prev.stdenv.mkDerivation {
+        pname = "plymouth-hackers-theme";
+        version = "0.1.0";
+        src = prev.fetchFromGitHub {
+           owner = "mainframed";
+           repo = "Hackers-Plymouth";
+           rev = "4ef388e1e9384cd3c48f7515c719f458a65ab118";
+           hash = "sha256-JvpRzu725U64kWDpK5kKDX2kgkj/v4yjxVN6GvGJBp0=";
+        };
+        nativeBuildInputs = [ prev.ffmpeg prev.pngquant ];
+        buildPhase = ''
+          bash generate.sh cerealkiller 1080
+          bash generate.sh lordnikon 1080
+          bash generate.sh acidburn 1080
+          bash generate.sh crashoverride 1080
+        '';
+        installPhase = ''
+          mkdir -p $out/share/plymouth/themes
+          cp -r cerealkiller $out/share/plymouth/themes
+          cp -r lordnikon $out/share/plymouth/themes
+          cp -r acidburn $out/share/plymouth/themes
+          cp -r crashoverride $out/share/plymouth/themes
+          find $out/share/plymouth/themes/ -name \*.plymouth -exec sed -i "s@\/usr\/@$out\/@" {} \;
         '';
       };
     })
