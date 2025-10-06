@@ -13,6 +13,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.plymouth.enable = true;
+  boot.initrd.systemd.enable = true;
 
   networking.hostName = "nixos"; # Define your hostname.
 
