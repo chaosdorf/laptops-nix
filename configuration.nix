@@ -58,6 +58,22 @@
       greeter-show-manual-login=true
     '';
   };
+  
+  # allow users to flash USB drives
+  security.polkit = {
+    enable = true;
+    extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (subject.isInGroup("autologin") || subject.isInGroup("users")) {
+          if (action.id == "org.freedesktop.udisks2.open-device") {
+            if (action.lookup("drive.removable") === "true") {
+              return polkit.Result.YES;
+            }
+          }
+        }
+      });
+    '';
+  };
 
   # Enable desktop environments
   services.desktopManager.plasma6.enable = true;
