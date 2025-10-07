@@ -127,7 +127,12 @@
     # command line tools
     wget
     git
-    python3Full
+    python313Full
+    python313Packages.pip
+    # jupyter doesn't seem to work
+    pipx
+    pipenv
+    uv
     
     # desktop applications
     vlc
