@@ -145,6 +145,7 @@
     lightdm-guest-account
     gettext # needed for guest-account
     update # the update script (see below)
+    autostart # the autostart script (see below)
     plymouth-hackers-theme
   ];
 
@@ -184,6 +185,17 @@
           install --mode +x ${./update.sh} $out/bin/update
         '';
       };
+      # Add an autostart script.
+      autostart = prev.stdenv.mkDerivation {
+        pname = "autostart";
+        version = "0.1.0";
+        dontUnpack = true;
+        installPhase = ''
+          mkdir -p $out/bin
+          install --mode +x ${./autostart.sh} $out/bin/autostart
+        '';
+      };
+      # Add plymouth themes
       plymouth-hackers-theme = prev.stdenv.mkDerivation {
         pname = "plymouth-hackers-theme";
         version = "0.1.0";
@@ -254,6 +266,15 @@
   environment.etc."skel/Schreibtisch/zed.desktop".source = "${pkgs.zed-editor}/share/applications/dev.zed.Zed.desktop";
   environment.etc."skel/Schreibtisch/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-community-bin}/share/applications/pycharm-community.desktop";
   environment.etc."skel/Schreibtisch/thonny.desktop".source = "${pkgs.thonny}/share/applications/Thonny.desktop";
+  # autostart
+  environment.etc."xdg/autostart/autostart.sh.desktop".text = ''
+    [Desktop Entry]
+    Exec=${pkgs.autostart}/bin/autostart
+    Icon=dialog-scripts
+    Name=autostart.sh
+    Type=Application
+    X-KDE-AutostartScript=true
+  '';
   
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
