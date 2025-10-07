@@ -241,6 +241,15 @@
     }
   ];
   
+  # add icons to the desktop
+  environment.etc."skel/Schreibtisch/firefox.desktop".source = "${pkgs.firefox}/share/applications/firefox.desktop";
+  environment.etc."skel/Schreibtisch/vlc.desktop".source = "${pkgs.vlc}/share/applications/vlc.desktop";
+  environment.etc."skel/Schreibtisch/libreoffice.desktop".source = "${pkgs.libreoffice-qt6}/share/applications/startcenter.desktop";
+  environment.etc."skel/Schreibtisch/vscode.desktop".source = "${pkgs.vscode}/share/applications/code.desktop";
+  environment.etc."skel/Schreibtisch/zed.desktop".source = "${pkgs.zed-editor}/share/applications/dev.zed.Zed.desktop";
+  environment.etc."skel/Schreibtisch/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-community-bin}/share/applications/pycharm-community.desktop";
+  environment.etc."skel/Schreibtisch/thonny.desktop".source = "${pkgs.thonny}/share/applications/Thonny.desktop";
+  
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
