@@ -59,16 +59,20 @@
     '';
   };
   
-  # allow users to flash USB drives
   security.polkit = {
     enable = true;
     extraConfig = ''
       polkit.addRule(function(action, subject) {
         if (subject.isInGroup("autologin") || subject.isInGroup("users")) {
+          // allow users to flash USB drives
           if (action.id == "org.freedesktop.udisks2.open-device") {
             if (action.lookup("drive.removable") === "true") {
               return polkit.Result.YES;
             }
+          }
+          // allow users to create systemd-homed accounts
+          if (action.id == "org.freedesktop.home1.create-home") {
+            return polkit.Result.YES;
           }
         }
       });
