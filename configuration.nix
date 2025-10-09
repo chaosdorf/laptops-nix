@@ -70,8 +70,8 @@
               return polkit.Result.YES;
             }
           }
-          // allow users to create systemd-homed accounts
-          if (action.id == "org.freedesktop.home1.create-home") {
+          // allow users to create and update systemd-homed accounts
+          if (action.id == "org.freedesktop.home1.create-home" || action.id == "org.freedesktop.home1.update-home") {
             return polkit.Result.YES;
           }
         }
