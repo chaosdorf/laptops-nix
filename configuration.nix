@@ -61,6 +61,8 @@
   
   security.polkit = {
     enable = true;
+    # see sudo
+    adminIdentities = [ "unix-user:admin" ];
     extraConfig = ''
       polkit.addRule(function(action, subject) {
         if (subject.isInGroup("autologin") || subject.isInGroup("users")) {
@@ -251,16 +253,17 @@
   # add a local admin user
   users.users.admin = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
   };
   
   # allow all guest and normal users to run the update script
-  security.sudo.extraRules = [
-    {
-      groups = [ "autologin" "users" ];
-      commands = [ { command = "/run/current-system/sw/bin/update"; options = [ "SETENV" "NOPASSWD" ]; } ];
-    }
-  ];
+  # and allow the admin account to admin
+  # we can't use the wheel group for this as users may set any group for their account
+  security.sudo.configFile = lib.mkForce ''
+    root ALL=(ALL:ALL) SETENV: ALL
+    admin ALL=(ALL:ALL) SETENV: ALL
+    %autologin ALL=(ALL:ALL) SETENV:NOPASSWD: /run/current-system/sw/bin/update
+    %users ALL=(ALL:ALL) SETENV:NOPASSWD: /run/current-system/sw/bin/update
+  '';
   
   # add icons to the desktop
   environment.etc."skel/Schreibtisch/firefox.desktop".source = "${pkgs.firefox}/share/applications/firefox.desktop";
