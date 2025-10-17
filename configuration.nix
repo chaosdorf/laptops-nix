@@ -153,6 +153,7 @@
     update # the update script (see below)
     autostart # the autostart script (see below)
     plymouth-hackers-theme
+    account-manager
   ];
 
   # List services that you want to enable:
@@ -226,6 +227,18 @@
           cp -r crashoverride $out/share/plymouth/themes
           find $out/share/plymouth/themes/ -name \*.plymouth -exec sed -i "s@\/usr\/@$out\/@" {} \;
         '';
+      };
+      account-manager = prev.rustPlatform.buildRustPackage {
+        pname = "account-manager";
+        version = "0.1.0";
+        src = ./account-manager;
+        cargoLock = {
+          lockFile = ./account-manager/Cargo.lock;
+          outputHashes = {
+          };
+        };
+        buildInputs = [ prev.qt6.full ];
+        nativeBuildInputs = [ prev.qt6.full ]; 
       };
     })
   ];
