@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Dialogs 6.3
 import QtQuick.Layouts 2.12
 import QtQuick.Window 2.12
 
@@ -20,12 +21,62 @@ ApplicationWindow {
     }
     
     function changePassword() {
-        changePasswordFrame.visible = false;
-        changePasswordShowButton.enabled = true;
+        changePasswordChangeButton.enabled = false;
+        if (newPassword.text === newPasswordConfirm.text) {
+            if (newPassword.text === oldPassword.text) {
+                newPasswordIsOldPassword.open();
+            } else {
+                if (newPassword.text === "") {
+                    newPasswordIsEmpty.open();
+                } else {
+                    if (account.changePassword(oldPassword.text, newPassword.text)) {
+                        changePasswordChangeButton.enabled = true;
+                        changePasswordFrame.visible = false;
+                        changePasswordShowButton.enabled = true;
+                    } else {
+                        oldPasswordWrong.open();
+                    }
+                }
+            }
+        } else {
+            passwordConfirmDoesNotMatch.open();
+        }
     }
 
     Account {
         id: account
+    }
+    
+    MessageDialog {
+        id: passwordConfirmDoesNotMatch
+        buttons: MessageDialog.Ok
+        text: qsTr("The two new passwords do not match.")
+        onAccepted: changePasswordChangeButton.enabled = true
+        onRejected: changePasswordChangeButton.enabled = true
+    }
+    
+    MessageDialog {
+        id: newPasswordIsOldPassword
+        buttons: MessageDialog.Ok
+        text: qsTr("The new password is old.")
+        onAccepted: changePasswordChangeButton.enabled = true
+        onRejected: changePasswordChangeButton.enabled = true
+    }
+    
+    MessageDialog {
+        id: newPasswordIsEmpty
+        buttons: MessageDialog.Ok
+        text: qsTr("The new password is empty.")
+        onAccepted: changePasswordChangeButton.enabled = true
+        onRejected: changePasswordChangeButton.enabled = true
+    }
+    
+    MessageDialog {
+        id: oldPasswordWrong
+        buttons: MessageDialog.Ok
+        text: qsTr("The old password was wrong.")
+        onAccepted: changePasswordChangeButton.enabled = true
+        onRejected: changePasswordChangeButton.enabled = true
     }
 
     Column {
@@ -42,6 +93,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     
                     Label {
+                        Layout.fillWidth: true
                         text: qsTr("Hi, %1!").arg(account.name)
                         color: palette.text
                     }
@@ -61,17 +113,21 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         TextField {
                             id: oldPassword
+                            echoMode: TextInput.Password
                             placeholderText: qsTr("old password")
                         }
                         TextField {
                             id: newPassword
+                            echoMode: TextInput.Password
                             placeholderText: qsTr("new password")
                         }
                         TextField {
                             id: newPasswordConfirm
+                            echoMode: TextInput.Password
                             placeholderText: qsTr("confirm new password")
                         }
                         Button {
+                            id: changePasswordChangeButton
                             text: qsTr("Change password")
                             onClicked: changePassword()
                         }

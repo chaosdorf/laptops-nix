@@ -1,8 +1,16 @@
 pub mod cxxqt_object;
 
+use std::env::VarError;
+
 use cxx_qt_lib::{QGuiApplication, QString, QQmlApplicationEngine, QUrl};
+use log::info;
 
 fn main() {
+    if let Err(VarError::NotPresent) = std::env::var("RUST_LOG") {
+        unsafe { std::env::set_var("RUST_LOG", "debug") };
+    }
+    env_logger::init();
+    
     // Create the application and engine
     let mut app = QGuiApplication::new();
     let mut engine = QQmlApplicationEngine::new();
@@ -27,6 +35,7 @@ fn main() {
 
     // Start the app
     if let Some(app) = app.as_mut() {
+        info!("Transferring control to Qt");
         app.exec();
     }
 }
