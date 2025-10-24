@@ -22,24 +22,56 @@ ApplicationWindow {
     
     function changePassword() {
         changePasswordChangeButton.enabled = false;
-        if (newPassword.text === newPasswordConfirm.text) {
-            if (newPassword.text === oldPassword.text) {
+        if (changePasswordNewPassword.text === changePasswordNewPasswordConfirm.text) {
+            if (changePasswordNewPassword.text === changePasswordOldPassword.text) {
                 newPasswordIsOldPassword.open();
             } else {
-                if (newPassword.text === "") {
+                if (changePasswordNewPassword.text === "") {
+                    newPasswordIsEmpty.resetButton = changePasswordChangeButton;
                     newPasswordIsEmpty.open();
                 } else {
-                    if (account.changePassword(oldPassword.text, newPassword.text)) {
+                    if (account.changePassword(changePasswordOldPassword.text, changePasswordNewPassword.text)) {
                         changePasswordChangeButton.enabled = true;
                         changePasswordFrame.visible = false;
                         changePasswordShowButton.enabled = true;
                     } else {
-                        oldPasswordWrong.open();
+                        changePasswordOldPasswordWrong.open();
                     }
                 }
             }
         } else {
+            passwordConfirmDoesNotMatch.resetButton = changePasswordChangeButton;
             passwordConfirmDoesNotMatch.open();
+        }
+    }
+    
+    function showNewUser() {
+        newAccountFrame.visible = true;
+        newAccountShowButton.enabled = false;
+    }
+    
+    function createAccount() {
+        newAccountCreateButton.enabled = false;
+        if (newAccountName.text === "") {
+            usernameEmpty.open();
+        } else {
+            if (newAccountPassword.text === newAccountPasswordConfirm.text) {
+                if (newAccountPassword.text === "") {
+                    newPasswordIsEmpty.resetButton = newAccountCreateButton;
+                    newPasswordIsEmpty.open();
+                } else {
+                    if (account.create(newAccountName.text, newAccountPassword.text)) {
+                        newAccountCreateButton.enabled = true;
+                        newAccountFrame.visible = false;
+                        newAccountShowButton.enabled = true;
+                    } else {
+                        // TODO
+                    }
+                }
+            } else {
+                passwordConfirmDoesNotMatch.resetButton = newAccountCreateButton;
+                passwordConfirmDoesNotMatch.open();
+            }
         }
     }
 
@@ -51,8 +83,9 @@ ApplicationWindow {
         id: passwordConfirmDoesNotMatch
         buttons: MessageDialog.Ok
         text: qsTr("The two new passwords do not match.")
-        onAccepted: changePasswordChangeButton.enabled = true
-        onRejected: changePasswordChangeButton.enabled = true
+        property var resetButton: null
+        onAccepted: this.resetButton.enabled = true
+        onRejected: this.resetButton.enabled = true
     }
     
     MessageDialog {
@@ -67,8 +100,9 @@ ApplicationWindow {
         id: newPasswordIsEmpty
         buttons: MessageDialog.Ok
         text: qsTr("The new password is empty.")
-        onAccepted: changePasswordChangeButton.enabled = true
-        onRejected: changePasswordChangeButton.enabled = true
+        property var resetButton: null
+        onAccepted: this.resetButton.enabled = true
+        onRejected: this.resetButton.enabled = true
     }
     
     MessageDialog {
@@ -77,6 +111,14 @@ ApplicationWindow {
         text: qsTr("The old password was wrong.")
         onAccepted: changePasswordChangeButton.enabled = true
         onRejected: changePasswordChangeButton.enabled = true
+    }
+    
+    MessageDialog {
+        id: usernameEmpty
+        buttons: MessageDialog.Ok
+        text: qsTr("The username is empty.")
+        onAccepted: newAccountCreateButton.enabled = true
+        onRejected: newAccountCreateButton.enabled = true
     }
 
     Column {
@@ -105,6 +147,12 @@ ApplicationWindow {
                     }
                     
                     // TODO: change name
+                     
+                    Button {
+                        id: newAccountShowButton
+                        text: qsTr("New account")
+                        onClicked: showNewUser()
+                    }
                 }
                 Frame {
                     id: changePasswordFrame
@@ -112,17 +160,17 @@ ApplicationWindow {
                     RowLayout {
                         Layout.fillWidth: true
                         TextField {
-                            id: oldPassword
+                            id: changePasswordOldPassword
                             echoMode: TextInput.Password
                             placeholderText: qsTr("old password")
                         }
                         TextField {
-                            id: newPassword
+                            id: changePasswordNewPassword
                             echoMode: TextInput.Password
                             placeholderText: qsTr("new password")
                         }
                         TextField {
-                            id: newPasswordConfirm
+                            id: changePasswordNewPasswordConfirm
                             echoMode: TextInput.Password
                             placeholderText: qsTr("confirm new password")
                         }
@@ -130,6 +178,32 @@ ApplicationWindow {
                             id: changePasswordChangeButton
                             text: qsTr("Change password")
                             onClicked: changePassword()
+                        }
+                    }
+                }
+                Frame {
+                    id: newAccountFrame
+                    visible: false
+                    RowLayout {
+                        Layout.fillWidth: true
+                        TextField {
+                            id: newAccountName
+                            placeholderText: qsTr("username")
+                        }
+                        TextField {
+                            id: newAccountPassword
+                            echoMode: TextInput.Password
+                            placeholderText: qsTr("new password")
+                        }
+                        TextField {
+                            id: newAccountPasswordConfirm
+                            echoMode: TextInput.Password
+                            placeholderText: qsTr("confirm new password")
+                        }
+                        Button {
+                            id: newAccountCreateButton
+                            text: qsTr("Create account")
+                            onClicked: createAccount()
                         }
                     }
                 }

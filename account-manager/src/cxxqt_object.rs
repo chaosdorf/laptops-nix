@@ -24,15 +24,22 @@ pub mod qobject {
         fn change_password(
             self: Pin<&mut Account>, old_password: &QString, new_password: &QString,
         ) -> bool;
+        
+        #[qinvokable]
+        #[cxx_name = "create"]
+        fn create(
+            self: Pin<&mut Account>, username: &QString, password: &QString,
+        ) -> bool;
     }
 }
 
 use core::pin::Pin;
 use std::process::Command;
 use cxx_qt_lib::QString;
-use log::{error, info};
+use log::{debug, error, info};
 use nix::unistd::{User, Uid};
 use rexpect::{session::spawn_command, ReadUntil};
+use serde::{Deserialize, Serialize};
 
 /// The Rust struct for the QObject
 pub struct AccountRust {
@@ -88,4 +95,35 @@ impl qobject::Account {
             .expect("passwd failed to change password");
         true
     }
+    
+    pub fn create(
+        self: Pin<&mut Self>, username: &QString, password: &QString,
+    ) -> bool {
+        // TODO: USB drive
+        info!("creating new account");
+        let record = Record {
+            user_name: username.to_string(),
+            password: password.to_string(),
+        };
+        let mut command = Command::new("homectl");
+        command.env("LANG", "C.UTF-8");
+        command.arg("create");
+        command.arg("--identity");
+        command.arg("-");
+        let mut homectl = command.spawn().expect("failed to start homectl");
+        serde_json::to_writer(
+            homectl.stdin.as_mut().expect("failed to get stdin"), &record,
+        ).expect("failed to write json");
+        let output = homectl.wait_with_output().expect("failed to wait");
+        debug!("stdout: {}", std::str::from_utf8(&output.stdout).expect("failed to read stdout"));
+        debug!("stderr: {}", std::str::from_utf8(&output.stderr).expect("failed to read stderr"));
+        output.status.success()
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct Record {
+    #[serde(rename = "userName")] 
+    user_name: String,
+    password: String,
 }
