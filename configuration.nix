@@ -302,7 +302,10 @@
   system.copySystemConfiguration = true;
 
   # Automatic updates
-  system.autoUpgrade.enable = true;
+  system.autoUpgrade = {
+    enable = true;
+    operation = "boot";
+  };
 
   # Automatic garbage collection
   nix.gc = {

@@ -10,4 +10,5 @@ fi
 cd /etc/nixos
 git fetch
 git reset --hard origin/main
-nixos-rebuild switch
+nixos-rebuild boot
+echo "Reboot the system to apply the update"
