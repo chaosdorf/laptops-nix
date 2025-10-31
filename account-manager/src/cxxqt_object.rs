@@ -34,13 +34,11 @@ pub mod qobject {
 }
 
 use core::pin::Pin;
-use std::process::Command;
+use std::process::{Command};
 use cxx_qt_lib::QString;
-use log::{debug, error, info};
+use log::{error, info};
 use nix::unistd::{User, Uid};
 use rexpect::{session::spawn_command, ReadUntil};
-use serde::{Deserialize, Serialize};
-
 /// The Rust struct for the QObject
 pub struct AccountRust {
     name: QString,
@@ -99,31 +97,25 @@ impl qobject::Account {
     pub fn create(
         self: Pin<&mut Self>, username: &QString, password: &QString,
     ) -> bool {
-        // TODO: USB drive
+        // this could be JSON, but homectl accepts no record without hashedPassword
         info!("creating new account");
-        let record = Record {
-            user_name: username.to_string(),
-            password: password.to_string(),
-        };
         let mut command = Command::new("homectl");
         command.env("LANG", "C.UTF-8");
         command.arg("create");
-        command.arg("--identity");
-        command.arg("-");
-        let mut homectl = command.spawn().expect("failed to start homectl");
-        serde_json::to_writer(
-            homectl.stdin.as_mut().expect("failed to get stdin"), &record,
-        ).expect("failed to write json");
-        let output = homectl.wait_with_output().expect("failed to wait");
-        debug!("stdout: {}", std::str::from_utf8(&output.stdout).expect("failed to read stdout"));
-        debug!("stderr: {}", std::str::from_utf8(&output.stderr).expect("failed to read stderr"));
-        output.status.success()
+        command.arg(username.to_string());
+        command.arg("--enforce-password-policy=no");
+        // TODO: USB drive
+        let mut homectl = spawn_command(
+            command, None,
+        ).expect("failed to spawn homectl");
+        homectl.exp_string("Please enter new password for user")
+            .expect("failed to wait for password prompt");
+        homectl.send_line(&password.to_string())
+            .expect("failed to send password");
+        homectl.exp_string("Please enter new password for user")
+            .expect("failed to wait for password prompt");
+        homectl.send_line(&password.to_string())
+            .expect("failed to send password");
+        true
     }
-}
-
-#[derive(Serialize, Deserialize)]
-struct Record {
-    #[serde(rename = "userName")] 
-    user_name: String,
-    password: String,
 }

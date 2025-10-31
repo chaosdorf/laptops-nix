@@ -14,8 +14,6 @@ dependencies = [
  "log",
  "nix",
  "rexpect",
- "serde",
- "serde_json",
 ]
 
 [[package]]
