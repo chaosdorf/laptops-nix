@@ -3,7 +3,10 @@ import QtQuick.Controls 2.12
 import QtQuick.Dialogs 6.3
 import QtQuick.Layouts 2.12
 import QtQuick.Window 2.12
-import io.thp.pyotherside 1.4
+
+// This must match the uri and version
+// specified in the qml_module in the build.rs script.
+import de.chaosdorf.AccountManager 1.0
 
 ApplicationWindow {
     height: 480
@@ -27,19 +30,13 @@ ApplicationWindow {
                     newPasswordIsEmpty.resetButton = changePasswordChangeButton;
                     newPasswordIsEmpty.open();
                 } else {
-                    py.call(
-                        "account_manager.change_password",
-                        [changePasswordOldPassword.text, changePasswordNewPassword.text],
-                        function (result) {
-                            if (result) {
-                                changePasswordChangeButton.enabled = true;
-                                changePasswordFrame.visible = false;
-                                changePasswordShowButton.enabled = true;
-                            } else {
-                                oldPasswordWrong.open();
-                            }
-                        }
-                    )
+                    if (account.changePassword(changePasswordOldPassword.text, changePasswordNewPassword.text)) {
+                        changePasswordChangeButton.enabled = true;
+                        changePasswordFrame.visible = false;
+                        changePasswordShowButton.enabled = true;
+                    } else {
+                        changePasswordOldPasswordWrong.open();
+                    }
                 }
             }
         } else {
@@ -63,15 +60,13 @@ ApplicationWindow {
                     newPasswordIsEmpty.resetButton = newAccountCreateButton;
                     newPasswordIsEmpty.open();
                 } else {
-                    py.call(
-                        "account_manager.create",
-                        [newAccountName.text, newAccountPassword.text],
-                        function(result) {
-                            newAccountCreateButton.enabled = true;
-                            newAccountFrame.visible = false;
-                            newAccountShowButton.enabled = true;
-                        }
-                    );
+                    if (account.create(newAccountName.text, newAccountPassword.text)) {
+                        newAccountCreateButton.enabled = true;
+                        newAccountFrame.visible = false;
+                        newAccountShowButton.enabled = true;
+                    } else {
+                        // TODO
+                    }
                 }
             } else {
                 passwordConfirmDoesNotMatch.resetButton = newAccountCreateButton;
@@ -80,14 +75,8 @@ ApplicationWindow {
         }
     }
 
-    Python {
-        id: py
-        Component.onCompleted: {
-            // Add the directory of this .qml file to the search path
-            addImportPath(Qt.resolvedUrl('.'));
-            // Import the main module and load the data
-            importModule('account_manager', null);
-        }
+    Account {
+        id: account
     }
     
     MessageDialog {
@@ -147,12 +136,7 @@ ApplicationWindow {
                     
                     Label {
                         Layout.fillWidth: true
-                        text: {
-                            // can't use account_manager here,
-                            // because it might not be import yet
-                            py.importModule_sync("getpass");
-                            return qsTr("Hi, %1!").arg(py.call_sync("getpass.getuser"));
-                        }
+                        text: qsTr("Hi, %1!").arg(account.name)
                         color: palette.text
                     }
             
