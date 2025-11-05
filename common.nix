@@ -126,8 +126,8 @@
     # command line tools
     wget
     git
-    python313Full
-    python313Packages.pip
+    python3Full
+    python3Packages.pip
     # jupyter doesn't seem to work
     pipx
     pipenv
