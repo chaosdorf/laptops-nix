@@ -18,15 +18,16 @@ pub mod qobject {
         
         #[qobject]
         #[qml_element]
-        #[namespace = "account"]
-        type Devices = super::DevicesRust;
+        #[qproperty(QString, name)]
+        #[namespace = "device"]
+        type Device = super::DeviceRust;
     }
 
     extern "RustQt" {
-        // Declare the invokable methods we want to expose on the QObject
+        // Declare the invokable methods we want to expose on the QObject      
         #[qinvokable]
         #[cxx_name = "listDevices"]
-        fn list_devices(self: Pin<&mut Account>) -> Devices;
+        fn list_devices(self: Pin<&mut Account>) -> Device;
         
         #[qinvokable]
         #[cxx_name = "changePassword"]
@@ -65,14 +66,6 @@ impl Default for AccountRust {
 }
 
 impl qobject::Account {
-    pub fn list_devices(self: Pin<&mut Self>) -> qobject::Devices {
-        drive_list()
-            .expect("failed to list block devices")
-            .into_iter()
-            .filter(|d| d.is_removable)
-            .collect()
-    }
-    
     pub fn change_password(
         self: Pin<&mut Self>, old_password: &QString, new_password: &QString,
     ) -> bool {
@@ -138,11 +131,7 @@ impl qobject::Account {
     }
 }
 
-pub struct DevicesRust {
-    devices: Vec<DeviceRust>,
-}
-
+#[derive(Default)]
 pub struct DeviceRust {
-    name: QString,
-    description: QString,
+  name: QString,
 }
