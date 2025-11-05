@@ -28,4 +28,7 @@
     };
 
   swapDevices = [ ];
+  # This device has only 4GB RAM.
+  zramSwap.enable = true;
+  nix.settings.max-jobs = 1;
 }
