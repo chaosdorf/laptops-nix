@@ -124,6 +124,7 @@ impl qobject::Account {
             .expect("failed to wait for password prompt");
         homectl.send_line(&password.to_string())
             .expect("failed to send password");
+        homectl.exp_eof().expect("failed to wait for account creation to finish");
         true
     }
 }
