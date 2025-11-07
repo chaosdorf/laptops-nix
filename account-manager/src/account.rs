@@ -15,37 +15,25 @@ pub mod qobject {
         #[qproperty(QString, name)]
         #[namespace = "account"]
         type Account = super::AccountRust;
-        
-        #[qobject]
-        #[qml_element]
-        #[qproperty(QString, name)]
-        #[namespace = "device"]
-        type Device = super::DeviceRust;
     }
 
     extern "RustQt" {
         // Declare the invokable methods we want to expose on the QObject      
         #[qinvokable]
-        #[cxx_name = "listDevices"]
-        fn list_devices(self: Pin<&mut Account>) -> Device;
-        
-        #[qinvokable]
         #[cxx_name = "changePassword"]
         fn change_password(
-            self: Pin<&mut Account>, old_password: &QString, new_password: &QString,
+            self: &Account, old_password: &QString, new_password: &QString,
         ) -> bool;
         
         #[qinvokable]
         #[cxx_name = "create"]
         fn create(
-            self: Pin<&mut Account>, username: &QString, password: &QString,
+            self: &Account, username: &QString, password: &QString, device: &QString,
         ) -> bool;
     }
 }
 
-use core::pin::Pin;
 use std::process::{Command};
-use bb_drivelist::drive_list;
 use cxx_qt_lib::QString;
 use log::{error, info};
 use nix::unistd::{User, Uid};
@@ -54,6 +42,8 @@ use rexpect::{session::spawn_command, ReadUntil};
 pub struct AccountRust {
     name: QString,
 }
+
+const GUEST_ACCOUNT_START: &str = "guest-";
 
 impl Default for AccountRust {
     /// Use the current user's name.
@@ -67,8 +57,9 @@ impl Default for AccountRust {
 
 impl qobject::Account {
     pub fn change_password(
-        self: Pin<&mut Self>, old_password: &QString, new_password: &QString,
+        &self, old_password: &QString, new_password: &QString,
     ) -> bool {
+        assert!(self.name.to_string().starts_with(GUEST_ACCOUNT_START)); // TODO
         info!("changing password");
         // we need to call `passwd` because it is setuid
         // this needs to happen interactively, because `-s` only works for root
@@ -106,16 +97,22 @@ impl qobject::Account {
     }
     
     pub fn create(
-        self: Pin<&mut Self>, username: &QString, password: &QString,
+        &self, username: &QString, password: &QString, device: &QString,
     ) -> bool {
         // this could be JSON, but homectl accepts no record without hashedPassword
-        info!("creating new account");
+        let username = username.to_string();
+        info!("creating new account '{username}' on '{device}'");
+        assert!(!username.starts_with(GUEST_ACCOUNT_START));
         let mut command = Command::new("homectl");
         command.env("LANG", "C.UTF-8");
         command.arg("create");
-        command.arg(username.to_string());
+        command.arg(&username);
         command.arg("--enforce-password-policy=no");
-        // TODO: USB drive
+        command.arg("--storage=luks");
+        command.arg("--fs-type=btrfs");
+        command.arg(format!("--image-path={device}"));
+        command.arg("--member-of=users");
+        command.arg(format!("--real-name={username}"));
         let mut homectl = spawn_command(
             command, None,
         ).expect("failed to spawn homectl");
@@ -129,9 +126,4 @@ impl qobject::Account {
             .expect("failed to send password");
         true
     }
-}
-
-#[derive(Default)]
-pub struct DeviceRust {
-  name: QString,
 }

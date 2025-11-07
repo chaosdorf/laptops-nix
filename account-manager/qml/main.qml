@@ -1,5 +1,5 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.14
 import QtQuick.Dialogs 6.3
 import QtQuick.Layouts 2.12
 import QtQuick.Window 2.12
@@ -46,8 +46,21 @@ ApplicationWindow {
     }
     
     function showNewUser() {
-        newAccountFrame.visible = true;
         newAccountShowButton.enabled = false;
+        refreshDevices();
+        newAccountFrame.visible = true;
+    }
+    
+    function refreshDevices() {
+        devices.refresh();
+        devicesModel.clear();
+        for(var i = 0; i < devices.length(); i++) {
+            devicesModel.append({
+                "index": i,
+                "description": devices.getDescription(i),
+                "device": devices.getDevice(i)
+            });
+        }
     }
     
     function createAccount() {
@@ -60,13 +73,7 @@ ApplicationWindow {
                     newPasswordIsEmpty.resetButton = newAccountCreateButton;
                     newPasswordIsEmpty.open();
                 } else {
-                    if (account.create(newAccountName.text, newAccountPassword.text)) {
-                        newAccountCreateButton.enabled = true;
-                        newAccountFrame.visible = false;
-                        newAccountShowButton.enabled = true;
-                    } else {
-                        // TODO
-                    }
+                    newAccountCreateConfirm.open();
                 }
             } else {
                 passwordConfirmDoesNotMatch.resetButton = newAccountCreateButton;
@@ -74,9 +81,17 @@ ApplicationWindow {
             }
         }
     }
-
+    
     Account {
         id: account
+    }
+    
+    Devices {
+        id: devices
+    }
+    
+    ListModel {
+        id: devicesModel
     }
     
     MessageDialog {
@@ -118,6 +133,31 @@ ApplicationWindow {
         buttons: MessageDialog.Ok
         text: qsTr("The username is empty.")
         onAccepted: newAccountCreateButton.enabled = true
+        onRejected: newAccountCreateButton.enabled = true
+    }
+    
+    MessageDialog {
+        id: newAccountCreateConfirm
+        text: qsTr(
+            "Are you sure to create the account '%1'?\nThis will overwrite the device '%2' (%3)."
+        ).arg(
+            newAccountName.text
+        ).arg(
+            devicesModel.get(deviceSelect.currentIndex).description
+        ).arg(
+            devicesModel.get(deviceSelect.currentIndex).device
+        )
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        onAccepted: {
+            account.create(
+                newAccountName.text,
+                newAccountPassword.text,
+                devicesModel.get(deviceSelect.currentIndex).device,
+            );
+            newAccountCreateButton.enabled = true;
+            newAccountFrame.visible = false;
+            newAccountShowButton.enabled = true;
+        }
         onRejected: newAccountCreateButton.enabled = true
     }
 
@@ -199,6 +239,11 @@ ApplicationWindow {
                             id: newAccountPasswordConfirm
                             echoMode: TextInput.Password
                             placeholderText: qsTr("confirm new password")
+                        }
+                        ComboBox {
+                            id: deviceSelect
+                            model: devicesModel
+                            textRole: "description"
                         }
                         Button {
                             id: newAccountCreateButton
