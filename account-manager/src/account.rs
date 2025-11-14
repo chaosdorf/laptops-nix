@@ -68,32 +68,52 @@ impl qobject::Account {
         let mut passwd = spawn_command(
             command, None,
         ).expect("failed to spawn passwd");
-        passwd.exp_string(&format!(
-            "Changing password for {}", self.name
-        )).expect("failed to find initial message");
-        passwd.exp_string("Current password: ")
-            .expect("failed to find old password prompt");
-        passwd.send_line(&old_password.to_string())
-            .expect("failed to send old password");
-        let (_read, matched) = passwd.exp_any(vec![
-            ReadUntil::String("passwd: Permission denied".to_string()),
-            ReadUntil::String("passwd: Authentication token manipulation error".to_string()),
-            ReadUntil::String("New password:".to_string()),
-        ]).expect("failed to match first response");
-        if matched != "New password:" {
-            error!("provided old password was wrong");
-            return false
+        // for guest accounts, passwd first asks for the old password
+        if self.name.to_string().starts_with(GUEST_ACCOUNT_START) {
+            passwd.exp_string(&format!(
+                "Changing password for {}", self.name
+            )).expect("failed to find initial message");
+            passwd.exp_string("Current password: ")
+                .expect("failed to find old password prompt");
+            passwd.send_line(&old_password.to_string())
+                .expect("failed to send old password");
+            let (_read, matched) = passwd.exp_any(vec![
+                ReadUntil::String("passwd: Permission denied".to_string()),
+                ReadUntil::String("passwd: Authentication token manipulation error".to_string()),
+                ReadUntil::String("New password:".to_string()),
+            ]).expect("failed to match first response");
+            if matched != "New password:" {
+                error!("provided old password was wrong");
+                return false
+            }
+            assert_eq!(matched, "New password:");
+        } else {
+            // for systemd-homed accounts, passwd first asks for the new password, ...
+            passwd
+                .exp_string("New password:")
+                .expect("failed to find initial message");
         }
-        assert_eq!(matched, "New password:");
         passwd.send_line(&new_password.to_string())
             .expect("failed to send new password");
         passwd.exp_string("Retype new password:")
             .expect("failed to send new password");
         passwd.send_line(&new_password.to_string())
             .expect("failed to send new password confirm");
-        passwd.exp_string("passwd: password updated successfully")
-            .expect("passwd failed to change password");
-        true
+        if !self.name.to_string().starts_with(GUEST_ACCOUNT_START) {
+            // ... the other way around for systemd-homed
+            passwd.exp_string("Password: ")
+                .expect("failed to find old password prompt");
+            passwd.send_line(&old_password.to_string())
+                .expect("failed to send old password");
+        }
+        let (_read, matched) = passwd.exp_any(vec![
+            ReadUntil::String("passwd: password updated successfully".to_string()),
+            ReadUntil::String(format!(
+                "Password incorrect or not sufficient for authentication of user {}.",
+                self.name,
+            )),
+        ]).expect("failed to match final response");
+        matched == "passwd: password updated successfully"
     }
     
     pub fn create(
