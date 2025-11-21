@@ -221,7 +221,7 @@
           find $out/share/plymouth/themes/ -name \*.plymouth -exec sed -i "s@\/usr\/@$out\/@" {} \;
         '';
       };
-      account-manager = prev.rustPlatform.buildRustPackage {
+      account-manager = prev.rustPlatform.buildRustPackage rec {
         pname = "account-manager";
         version = "0.1.0";
         src = ./account-manager;
@@ -232,6 +232,15 @@
         };
         buildInputs = [ prev.qt6.full ];
         nativeBuildInputs = [ prev.qt6.full ]; 
+        desktopEntry = prev.makeDesktopItem {
+          name = pname;
+          desktopName = pname;
+          exec = "/run/current-system/sw/bin/account-manager";
+        };
+        postInstall = ''
+          mkdir -p $out/share/applications
+          install --mode +x ${desktopEntry}/share/applications/${pname}.desktop $out/share/applications/${pname}.desktop
+        '';
       };
     })
   ];
@@ -279,6 +288,7 @@
   environment.etc."skel/Schreibtisch/zed.desktop".source = "${pkgs.zed-editor}/share/applications/dev.zed.Zed.desktop";
   environment.etc."skel/Schreibtisch/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-community-bin}/share/applications/pycharm-community.desktop";
   environment.etc."skel/Schreibtisch/thonny.desktop".source = "${pkgs.thonny}/share/applications/Thonny.desktop";
+  environment.etc."skel/Schreibtisch/account-manager.desktop".source = "${pkgs.account-manager}/share/applications/account-manager.desktop";
   # autostart
   environment.etc."xdg/autostart/autostart.sh.desktop".text = ''
     [Desktop Entry]
