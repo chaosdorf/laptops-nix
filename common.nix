@@ -125,6 +125,10 @@
     
     # command line tools
     wget
+    btop
+    neofetch
+    fastfetch
+    hyfetch
     git
     python3Full
     python3Packages.pip
