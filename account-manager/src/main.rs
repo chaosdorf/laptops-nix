@@ -2,8 +2,10 @@ pub mod account;
 pub mod devices;
 
 use std::env::VarError;
+use std::pin::Pin;
 
-use cxx_qt_lib::{QGuiApplication, QString, QQmlApplicationEngine, QUrl};
+use cxx_qt::casting::Upcast;
+use cxx_qt_lib::{QGuiApplication, QString, QQmlApplicationEngine, QQmlEngine, QUrl};
 use log::info;
 
 fn main() {
@@ -25,9 +27,9 @@ fn main() {
     }
 
     if let Some(engine) = engine.as_mut() {
+        let engine: Pin<&mut QQmlEngine> = engine.upcast_pin();
         // Listen to a signal from the QML Engine
         engine
-            .as_qqmlengine()
             .on_quit(|_| {
                 println!("QML Quit!");
             })
