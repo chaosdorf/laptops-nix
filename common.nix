@@ -92,7 +92,6 @@
   services.flatpak.enable = true;
 
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -121,7 +120,7 @@
     thonny
     vscode
     zed-editor
-    jetbrains.pycharm-community-bin
+    jetbrains.pycharm-oss
     
     # command line tools
     wget
@@ -130,7 +129,7 @@
     fastfetch
     hyfetch
     git
-    python3Full
+    python3
     python3Packages.pip
     # jupyter doesn't seem to work
     pipx
@@ -234,8 +233,8 @@
           outputHashes = {
           };
         };
-        buildInputs = [ prev.qt6.full ];
-        nativeBuildInputs = [ prev.qt6.full ]; 
+        buildInputs = [ prev.qt6.qtdeclarative ];
+        nativeBuildInputs = [ prev.qt6.qtdeclarative prev.qt6.wrapQtAppsHook ]; 
         desktopEntry = prev.makeDesktopItem {
           name = pname;
           desktopName = pname;
@@ -290,7 +289,7 @@
   environment.etc."skel/Schreibtisch/libreoffice.desktop".source = "${pkgs.libreoffice-qt6}/share/applications/startcenter.desktop";
   environment.etc."skel/Schreibtisch/vscode.desktop".source = "${pkgs.vscode}/share/applications/code.desktop";
   environment.etc."skel/Schreibtisch/zed.desktop".source = "${pkgs.zed-editor}/share/applications/dev.zed.Zed.desktop";
-  environment.etc."skel/Schreibtisch/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-community-bin}/share/applications/pycharm-community.desktop";
+  environment.etc."skel/Schreibtisch/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-oss}/share/applications/pycharm-community.desktop";
   environment.etc."skel/Schreibtisch/thonny.desktop".source = "${pkgs.thonny}/share/applications/Thonny.desktop";
   environment.etc."skel/Schreibtisch/account-manager.desktop".source = "${pkgs.account-manager}/share/applications/account-manager.desktop";
   # autostart
