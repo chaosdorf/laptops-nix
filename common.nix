@@ -87,7 +87,18 @@
   console.keyMap = "de";
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  services.printing = {
+    enable = true;
+    # we shouldn't need drivers, avahi should provide IPP and PPDs
+    stateless = true;
+    # else, it takes quite a while for printers to show up
+    startWhenNeeded = false;
+  };
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
 
   services.flatpak.enable = true;
 
