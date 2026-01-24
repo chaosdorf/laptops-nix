@@ -150,6 +150,10 @@
     # desktop applications
     vlc
     libreoffice-qt6
+    superTuxKart
+    superTux
+    wesnoth
+    openttd
     
     # system stuff
     kdePackages.discover
