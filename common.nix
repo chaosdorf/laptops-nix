@@ -135,6 +135,7 @@
     
     # command line tools
     wget
+    htop
     btop
     neofetch
     fastfetch
@@ -154,6 +155,7 @@
     superTux
     wesnoth
     openttd
+    libreoffice-qt-still
     
     # system stuff
     kdePackages.discover
