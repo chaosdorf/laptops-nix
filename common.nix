@@ -300,14 +300,14 @@
   '';
   
   # add icons to the desktop
-  environment.etc."skel/Schreibtisch/firefox.desktop".source = "${pkgs.firefox}/share/applications/firefox.desktop";
-  environment.etc."skel/Schreibtisch/vlc.desktop".source = "${pkgs.vlc}/share/applications/vlc.desktop";
-  environment.etc."skel/Schreibtisch/libreoffice.desktop".source = "${pkgs.libreoffice-qt6}/share/applications/startcenter.desktop";
-  environment.etc."skel/Schreibtisch/vscode.desktop".source = "${pkgs.vscode}/share/applications/code.desktop";
-  environment.etc."skel/Schreibtisch/zed.desktop".source = "${pkgs.zed-editor}/share/applications/dev.zed.Zed.desktop";
-  environment.etc."skel/Schreibtisch/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-oss}/share/applications/pycharm-community.desktop";
-  environment.etc."skel/Schreibtisch/thonny.desktop".source = "${pkgs.thonny}/share/applications/Thonny.desktop";
-  environment.etc."skel/Schreibtisch/account-manager.desktop".source = "${pkgs.account-manager}/share/applications/account-manager.desktop";
+  environment.etc."skel/Desktop/firefox.desktop".source = "${pkgs.firefox}/share/applications/firefox.desktop";
+  environment.etc."skel/Desktop/vlc.desktop".source = "${pkgs.vlc}/share/applications/vlc.desktop";
+  environment.etc."skel/Desktop/libreoffice.desktop".source = "${pkgs.libreoffice-qt6}/share/applications/startcenter.desktop";
+  environment.etc."skel/Desktop/vscode.desktop".source = "${pkgs.vscode}/share/applications/code.desktop";
+  environment.etc."skel/Desktop/zed.desktop".source = "${pkgs.zed-editor}/share/applications/dev.zed.Zed.desktop";
+  environment.etc."skel/Desktop/pycharm.desktop".source = "${pkgs.jetbrains.pycharm-oss}/share/applications/pycharm-community.desktop";
+  environment.etc."skel/Desktop/thonny.desktop".source = "${pkgs.thonny}/share/applications/Thonny.desktop";
+  environment.etc."skel/Desktop/account-manager.desktop".source = "${pkgs.account-manager}/share/applications/account-manager.desktop";
   # autostart
   environment.etc."xdg/autostart/autostart.sh.desktop".text = ''
     [Desktop Entry]
