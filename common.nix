@@ -168,6 +168,7 @@
     plymouth-theme-hackers
     plymouth-theme-xenia
     account-manager
+    ntfs3g
   ];
 
   # List services that you want to enable:
