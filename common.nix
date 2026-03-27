@@ -13,7 +13,7 @@
   boot.kernelParams = [ "quiet" "splash" ];
   boot.plymouth = {
     enable = true;
-    themePackages = [ pkgs.plymouth-hackers-theme ];
+    themePackages = [ pkgs.plymouth-theme-hackers pkgs.plymouth-theme-xenia ];
   };
 
   # Enable networking
@@ -165,7 +165,8 @@
     gettext # needed for guest-account
     update # the update script (see below)
     autostart # the autostart script (see below)
-    plymouth-hackers-theme
+    plymouth-theme-hackers
+    plymouth-theme-xenia
     account-manager
   ];
 
@@ -216,8 +217,8 @@
         '';
       };
       # Add plymouth themes
-      plymouth-hackers-theme = prev.stdenv.mkDerivation {
-        pname = "plymouth-hackers-theme";
+      plymouth-theme-hackers = prev.stdenv.mkDerivation {
+        pname = "plymouth-theme-hackers";
         version = "0.1.0";
         src = prev.fetchFromGitHub {
            owner = "mainframed";
@@ -238,6 +239,19 @@
           cp -r lordnikon $out/share/plymouth/themes
           cp -r acidburn $out/share/plymouth/themes
           cp -r crashoverride $out/share/plymouth/themes
+          find $out/share/plymouth/themes/ -name \*.plymouth -exec sed -i "s@\/usr\/@$out\/@" {} \;
+        '';
+      };
+      plymouth-theme-xenia = prev.stdenv.mkDerivation {
+        pname = "plymouth-theme-xenia";
+        version = "0.1.0";
+        src = prev.fetchgit {
+          url = "https://code.opensuse.org/fl4nn/plymouth-theme-xenia.git";
+          hash = "sha256-fQKqmEN9bofK0DKm9NNDgBWhH0sERDNDAk4peDskdp8=";
+        };
+        installPhase = ''
+          mkdir -p $out/share/plymouth/themes
+          cp -r xenia $out/share/plymouth/themes
           find $out/share/plymouth/themes/ -name \*.plymouth -exec sed -i "s@\/usr\/@$out\/@" {} \;
         '';
       };

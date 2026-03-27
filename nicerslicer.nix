@@ -11,7 +11,7 @@
     ];
 
   networking.hostName = "nicerslicer"; # Define your hostname.
-  boot.plymouth.theme = "acidburn"; # TODO: xenia
+  boot.plymouth.theme = "xenia";
   
   boot.initrd.availableKernelModules = [ "xhci_pci" "ehci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
