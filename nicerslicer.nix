@@ -43,4 +43,9 @@
     orca-slicer
     freecad
   ];
+  
+  # add icons to the desktop
+  environment.etc."skel/Desktop/cura.desktop".source = "${pkgs.cura}/share/applications/com.ultimaker.cura.desktop";
+  environment.etc."skel/Desktop/orca-slicer.desktop".source = "${pkgs.orca-slicer}/share/applications/OrcaSlicer.desktop";
+  environment.etc."skel/Desktop/freecad.desktop".source = "${pkgs.freecad}/share/applications/org.freecad.FreeCAD.desktop";
 }
