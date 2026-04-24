@@ -8,6 +8,7 @@ if [ "$EUID" -ne 0 ]
 fi
 
 cd /etc/nixos
+git remote set-url origin https://codeberg.org/Chaosdorf/laptops-nix.git
 git fetch
 git reset --hard origin/main
 nixos-rebuild boot
